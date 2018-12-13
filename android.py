@@ -9,7 +9,7 @@ from collections import namedtuple
 OverviewReceipt = namedtuple('OverviewReceipt', 'name amount date')
 Receipt = namedtuple('Receipt', 'amount tlf')
 
-ADB_IP = '10.0.1.69'
+ADB_IP = '10.8.0.86'
 
 def cmd(cmd_line):
     cmd_line = 'adb -H {} {}'.format(ADB_IP, cmd_line)
@@ -151,6 +151,15 @@ def open_activities_from_send_payment():
     cmd('shell input tap 408 109')
     time.sleep(2)
 
+def empty_go_to_logout():
+    cmd('shell input keyevent KEYCODE_BACK')
+
+def perform_logout():
+    #press logout button
+    cmd('shell input tap 356 745')
+
+
+
 #cmd('disconnect')
 
 #cmd('connect 10.0.1.71:5555')
@@ -177,6 +186,12 @@ def loop():
             
             if state == SEND_REQUEST_AND_PAY:
                 open_activities_from_send_payment()
+            
+            if state == EMPTY:
+                empty_go_to_logout()
+            
+            if state == LOGOUT:
+                perform_logout()
 
             if state == OVERVIEW_LIST:
                 receipts = should_swipe_further_overview_list()

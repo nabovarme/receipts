@@ -34,3 +34,6 @@ compose_build: file_structure
 
 compose: compose_build
 	docker-compose up --force-recreate
+
+down: 
+	docker-compose down
