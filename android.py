@@ -97,8 +97,10 @@ def get_state(image, log_coordinates=False):
         pt3 = image.getpixel(coord3)
         if pt1[0] == gray1 and pt2[0] == gray2 and pt3[0] == gray3:
             possible_states.append(state)
+        coords.append((pt1, pt2, pt3))
     if log_coordinates or not possible_states:
-        print(possible_states, coords, flush=True)
+        for coord in coords:
+            print(coord, flush=True)
     state = possible_states[-1]
     return state
 
