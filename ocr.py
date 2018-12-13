@@ -57,7 +57,7 @@ def receipt_from_filename(filename):
     phone_number = ''
     message = text
     error = None
-    full_text = text
+    full_text = text.replace('/', ' ')
     try:
         money_index = text.index('money') + len('money')
         text = text[money_index:]
@@ -77,7 +77,7 @@ def row_receipt_from_filename(filename):
     text = tesseract_on_filename(filename)
     name, amount, date = text.split('\n')[:3]
     error = None
-    full_text = text
+    full_text = text.replace('/', ' ')
     try:
         if not name:
             raise ValueError("missing name")
