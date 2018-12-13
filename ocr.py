@@ -58,20 +58,6 @@ def receipt_from_filename(filename):
     message = text
     error = None
     full_text = text.replace('/', ' ')
-    try:
-        raise Exception('dont do parsing')
-        money_index = text.index('money') + len('money')
-        text = text[money_index:]
-        kr_index = text.index('kr.') + len('kr.')
-        plus_index = text.index('+')
-        name = ' '.join(text[kr_index:plus_index].strip().split())
-        phone_number, message = text[plus_index:].split('\n', 1)
-        phone_number = ''.join(phone_number.split())
-        message = ' '.join(message.split()).split('Transaction details', 1)[0]
-    except:
-        error = True
-        logging.exception("parse error" + text)
-    message = ' '.join(message.split('\n')).replace('/', ' ')
     return Receipt(name, phone_number, message, error, full_text)
     
 def row_receipt_from_filename(filename):
@@ -79,31 +65,6 @@ def row_receipt_from_filename(filename):
     name, amount, date = text.split('\n')[:3]
     error = None
     full_text = text.replace('/', ' ')
-    try:
-        raise Exception('dont do parsing')
-
-        if not name:
-            raise ValueError("missing name")
-        amount = amount.strip().rstrip()
-        if 'money' in amount:
-            amount_index = amount.index('money') + len('money')
-            amount_tokens = amount[amount_index:].split()
-        elif 'mon' in amount:
-            amount_tokens = amount[amount.index('mon'):].split()
-        else:
-            amount_tokens = amount.split()
-
-        if len(amount_tokens) > 1:
-            amount = ''.join(amount_tokens[1:])
-        else:
-            amount = ''.join(amount_tokens)
-    
-        amount = amount.replace('.', '').replace(',', '.')
-        if not amount:
-            raise ValueError("missing amount")
-    except:
-        error = True
-        logging.exception("parse error:" + text)
     return OverviewReceipt(name, amount, date, error, full_text)
 
 
@@ -121,9 +82,8 @@ async def test(request):
             logging.error("ignoring image with y value lower than 300")
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
-        if overview_receipt.error is not None:
-            filename = f"/images/errors/{overview_receipt.full_text}_row.jpg"
-            shutil.copy(tmp_filename, filename)
+        filename = f"/images/errors/{overview_receipt.full_text}_row.jpg"
+        shutil.copy(tmp_filename, filename)
 
         if overview_receipt not in seen:
             receipts_to_open.append((punkt, overview_receipt._asdict()))
@@ -147,9 +107,7 @@ async def test(request):
     print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
 
     seen.append(overview_receipt)
-    name = receipt.name or overview_receipt.name
-    if not name or overview_receipt.error is not None or receipt.error is not None:
-        shutil.copy('/images/receipt.png', f'/images/errors/{overview_receipt.full_text}_{receipt.full_text}_receipt.png')
+    shutil.copy('/images/receipt.png', f'/images/errors/{overview_receipt.full_text}_{receipt.full_text}_receipt.png')
     return json({'seen':True})
 
 
