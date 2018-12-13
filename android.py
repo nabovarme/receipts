@@ -152,6 +152,7 @@ def open_activities_from_send_payment():
 
 def empty_go_to_logout():
     cmd('shell input keyevent KEYCODE_BACK')
+    cmd('shell input keyevent KEYCODE_BACK')
 
 def perform_logout():
     #press logout button
