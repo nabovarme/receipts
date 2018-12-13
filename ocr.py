@@ -122,7 +122,7 @@ async def test(request):
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
         if overview_receipt.error is not None:
-            filename = f"/images/errors/{overview_receipt.name}_{overview_receipt.amount}_{overview_receipt.date}_row.jpg"
+            filename = f"/images/errors/{overview_receipt.full_text}_row.jpg"
             shutil.copy(tmp_filename, filename)
 
         if overview_receipt not in seen:
@@ -149,10 +149,7 @@ async def test(request):
     seen.append(overview_receipt)
     name = receipt.name or overview_receipt.name
     if not name or overview_receipt.error is not None or receipt.error is not None:
-        shutil.copy('/images/receipt.png', f'/images/errors/{overview_receipt.name}_{overview_receipt.amount}_{overview_receipt.date}_receipt.png')
-    else:
-        filename = f"/images/success/{overview_receipt.date}_{overview_receipt.amount}_{name}_{receipt.phone_number}_{receipt.message}.png"
-        shutil.copy('/images/receipt.png', filename)
+        shutil.copy('/images/receipt.png', f'/images/errors/{overview_receipt.full_text}_{receipt.full_text}_receipt.png')
     return json({'seen':True})
 
 
