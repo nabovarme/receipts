@@ -59,6 +59,7 @@ def receipt_from_filename(filename):
     error = None
     full_text = text.replace('/', ' ')
     try:
+        raise Exception('dont do parsing')
         money_index = text.index('money') + len('money')
         text = text[money_index:]
         kr_index = text.index('kr.') + len('kr.')
@@ -79,6 +80,8 @@ def row_receipt_from_filename(filename):
     error = None
     full_text = text.replace('/', ' ')
     try:
+        raise Exception('dont do parsing')
+
         if not name:
             raise ValueError("missing name")
         amount = amount.strip().rstrip()
