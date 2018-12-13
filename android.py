@@ -90,16 +90,15 @@ states = [
 
 def get_state(image, log_coordinates=False):
     possible_states = []
+    coords = []
     for coord1, gray1, coord2, gray2, coord3, gray3, state in states:
         pt1 = image.getpixel(coord1)
         pt2 = image.getpixel(coord2)
         pt3 = image.getpixel(coord3)
-        if log_coordinates:
-            print(pt1, pt2, pt3, flush=True)
         if pt1[0] == gray1 and pt2[0] == gray2 and pt3[0] == gray3:
             possible_states.append(state)
-    if log_coordinates:
-        print(possible_states, flush=True)
+    if log_coordinates or not possible_states:
+        print(possible_states, coords, flush=True)
     state = possible_states[-1]
     return state
 
