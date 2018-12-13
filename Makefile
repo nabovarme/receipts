@@ -4,7 +4,7 @@ file_structure:
 	mkdir -p ./images/success
 	mkdir -p ./images/test
 
-build:
+build: file_structure
 	docker build -t ocr .
 
 run: build
@@ -18,18 +18,18 @@ bash: build
 daemon: build
 	docker 
 
-build_adb:
+build_adb: file_structure
 	docker build -t adb_client -f Dockerfile.adb .
 
 
 
-run_adb: build_adb
+run_adb: build_adb 
 	docker run -it -v `pwd`/images:/images adb_client 
 
 bash_adb: build_adb
 	docker run -it  -v `pwd`/images:/images adb_client /bin/sh
 
-compose_build:
+compose_build: file_structure
 	docker-compose build 
 
 compose: compose_build
