@@ -35,5 +35,8 @@ compose_build: file_structure
 compose: compose_build
 	docker-compose up --force-recreate
 
+compose_daemon: compose_build
+	docker-compose up -d --force-recreate
+
 down: 
 	docker-compose down
