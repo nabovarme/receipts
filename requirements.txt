@@ -1,0 +1,6 @@
+pillow
+opencv-python
+tesserocr
+numpy
+dateutils
+sanic

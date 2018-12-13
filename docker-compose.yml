@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  ocr:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    volumes:
+      - ./images:/images
+  
+
+  android:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.adb
+    restart: always
+    volumes:
+      - ./images:/images
