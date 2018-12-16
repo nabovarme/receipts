@@ -9,10 +9,23 @@ import logging
 import shutil
 from sanic import Sanic
 from sanic.response import json
+from mysql.connector import MySQLConnection, Error
 
-OverviewReceipt = namedtuple('OverviewReceipt', 'name amount date error full_text')
-Receipt = namedtuple('Receipt', 'name phone_number message error, full_text')
+OverviewReceipt = namedtuple('OverviewReceipt', 'filename full_text')
+Receipt = namedtuple('Receipt', 'filename full_text')
 
+
+dbconfig = {
+  "database": os.environ['DB_HOST'],
+  "user":     os.environ['DB_USER'],
+  "password": os.environ['DB_PASSWORD']
+}
+CONNECTION_POOL = mysql.connector.pooling.MySQLConnectionPool(
+    pool_name='666',
+    pool_size=2,
+    pool_reset_session=True,
+    **self.dbconfig
+)
 
 def overview_image_to_rows(filename):
     img_rgb = cv2.imread(filename)
@@ -53,24 +66,38 @@ def tesseract_on_filename(filename):
 
 def receipt_from_filename(filename):
     text = tesseract_on_filename(filename)
-    name = ''
-    phone_number = ''
-    message = text
-    error = None
-    full_text = text.replace('/', ' ')
-    return Receipt(name, phone_number, message, error, full_text)
+    return Receipt(filename, text)
     
 def row_receipt_from_filename(filename):
     text = tesseract_on_filename(filename)
-    name, amount, date = text.split('\n')[:3]
-    error = None
-    full_text = text.replace('/', ' ')
-    return OverviewReceipt(name, amount, date, error, full_text)
+    return OverviewReceipt(filename, text)
+
+def image_to_blob(filename):
+    with open(filename, 'rb') as f:
+        photo = f.read()
+    return photo
 
 
+def insert_into_db(info, row_receipt_filename, receipt_detail_filename):
+    
+    query = """
+        INSERT INTO accounts_auto
+        VALUES(info, screnshow_row, screenshot_detail)
+        (%s, %s, %s)
+    """
+
+    screenshot_row = image_to_blob(row_receipt_filename)
+    screenshot_detail = image_to_blob(receipt_detail_filename)
+
+    args = (info, screenshot_row, screenshot_detail)
+ 
+    with CONNECTION_POOL.get_connection() as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(query, args)
+
+        
 app = Sanic()
 
-seen = []
 
 @app.route("/should_i_swipe_further")
 async def test(request):
@@ -82,8 +109,6 @@ async def test(request):
             logging.error("ignoring image with y value lower than 300")
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
-        filename = f"/images/errors/{overview_receipt.full_text}_row.jpg"
-        shutil.copy(tmp_filename, filename)
 
         if overview_receipt not in seen:
             receipts_to_open.append((punkt, overview_receipt._asdict()))
@@ -102,12 +127,12 @@ async def test(request):
 async def test(request):
     receipt = request.json
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
-    filename = '/images/receipt.png'
+
+    receipt_detail_filename = '/images/receipt.png'
     receipt = receipt_from_filename(filename)
     print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
-
-    seen.append(overview_receipt)
-    shutil.copy('/images/receipt.png', f'/images/errors/{overview_receipt.full_text}_{receipt.full_text}_receipt.png')
+    info = '\n'.join([overview_receipt.full_text, receipt.full_text])
+    insert_into_db(info, overview_receipt.filename, receipt.filename)
     return json({'seen':True})
 
 

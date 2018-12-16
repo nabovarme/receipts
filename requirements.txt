@@ -4,3 +4,4 @@ tesserocr
 numpy
 dateutils
 sanic
+mysql-connector
