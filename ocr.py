@@ -114,7 +114,6 @@ def should_checkout_row_receipt(row_receipt_info):
 def has_seen_first_receipt():
     return False
 
-
 app = Sanic()
 
 @app.route("/should_i_swipe_further")
