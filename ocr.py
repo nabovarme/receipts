@@ -83,7 +83,7 @@ def insert_into_db(overview_receipt, detail_receipt):
 
 
     query = """
-        INSERT INTO accounts_auto (info_row, info_detail, screnshow_row, screenshot_detail)
+        INSERT INTO accounts_auto (info_row, info_detail, screnshot_row, screenshot_detail)
         VALUES (%s, %s, %s, %s)
     """
 
@@ -100,6 +100,7 @@ def insert_into_db(overview_receipt, detail_receipt):
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         CONNECTION.commit()
+        logging.warning("succesfully inserted row")
     except:
         logging.exception("MYSQL ERROR")
 
