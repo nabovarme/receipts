@@ -9,7 +9,8 @@ import logging
 import shutil
 from sanic import Sanic
 from sanic.response import json
-import mysql
+from mysql.connector import pooling
+
 
 OverviewReceipt = namedtuple('OverviewReceipt', 'filename full_text')
 Receipt = namedtuple('Receipt', 'filename full_text')
@@ -20,7 +21,7 @@ dbconfig = {
   "user":     os.environ['DB_USER'],
   "password": os.environ['DB_PASSWORD']
 }
-CONNECTION_POOL = mysql.connector.pooling.MySQLConnectionPool(
+CONNECTION_POOL = pooling.MySQLConnectionPool(
     pool_name='666',
     pool_size=2,
     pool_reset_session=True,
