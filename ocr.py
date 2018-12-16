@@ -117,7 +117,6 @@ def has_seen_first_receipt():
 
 app = Sanic()
 
-
 @app.route("/should_i_swipe_further")
 async def test(request):
     filename = '/images/screencap.png'
