@@ -106,7 +106,24 @@ def insert_into_db(overview_receipt, detail_receipt):
 
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
-    return True
+    query = """
+        SELECT * from accounts_auto WHERE info_row = %s
+    """
+    args = (row_receipt_info,)
+    try:
+        with CONNECTION.cursor() as cursor:
+            # Create a new record
+            cursor.execute(query, args)
+            results = cursor.fetchone()
+            print(results)
+            exit(0)
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        CONNECTION.commit()
+        logging.warning("succesfully inserted row")
+    except:
+        logging.exception("MYSQL ERROR")
 
 
 def has_seen_first_receipt():

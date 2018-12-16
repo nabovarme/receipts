@@ -129,7 +129,7 @@ def open_activities():
     cmd('shell input tap 116 346')
 
 def swipe_down_overview_list():
-    cmd('shell input swipe 242 736 242 561')
+    cmd('shell input swipe 242 736 242 600')
 
 def should_swipe_further_overview_list():  
     r = requests.get('http://ocr:8000/should_i_swipe_further')
