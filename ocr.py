@@ -94,16 +94,13 @@ def insert_into_db(overview_receipt, detail_receipt):
     args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail)
 
     try:
-        with connection.cursor() as cursor:
+        with CONNECTION.cursor() as cursor:
             # Create a new record
             cursor.execute(query, args)
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
-        connection.commit()
-
-    finally:
-        connection.close()
+        CONNECTION.commit()
 
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
