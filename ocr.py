@@ -83,7 +83,7 @@ def insert_into_db(overview_receipt, detail_receipt):
 
 
     query = """
-        INSERT INTO accounts_auto (info_row, info_detail, screnshot_row, screenshot_detail)
+        INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail)
         VALUES (%s, %s, %s, %s)
     """
 
