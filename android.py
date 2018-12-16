@@ -22,6 +22,7 @@ MENU = 4
 RECEIPT = 5
 EMPTY = 6
 LOGOUT = 7
+PANIC = 8
 
 HUMAN_LOOKUP = {
     OVERVIEW_LIST:'OVERVIEW_LIST',
@@ -31,7 +32,8 @@ HUMAN_LOOKUP = {
     MENU:'MENU',
     RECEIPT:'RECEIPT',
     EMPTY:'EMPTY',
-    LOGOUT:'LOGOUT'
+    LOGOUT:'LOGOUT',
+    PANIC:'PANIC'
 }
 
 states = [
@@ -100,6 +102,7 @@ def get_state(image, log_coordinates=False):
             print(coord, flush=True)
     if not possible_states:
         image.save('/images/unseen/{}.png'.format(int(time.time())))
+        return PANIC
     state = possible_states[-1]
     return state
 
@@ -174,6 +177,7 @@ def perform_logout():
 
 
 
+STATE_OF_PANIC = False
 
 def loop():
     try:
@@ -184,9 +188,13 @@ def loop():
 
             if state == HOME:
                 open_app()
+                STATE_OF_PANIC = False
                         
             if state == LOGIN:
                 input_pin()
+
+            if state == PANIC:
+                STATE_OF_PANIC = True
             
             if state == RECEIPT:
                 reset_overview()
@@ -194,7 +202,7 @@ def loop():
             if state == SEND_REQUEST_AND_PAY:
                 open_activities_from_send_payment()
             
-            if state == EMPTY:
+            if state == EMPTY or STATE_OF_PANIC:
                 empty_go_to_logout()
             
             if state == LOGOUT:
