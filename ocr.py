@@ -9,7 +9,7 @@ import logging
 import shutil
 from sanic import Sanic
 from sanic.response import json
-import mysql.connector
+import mysql
 
 OverviewReceipt = namedtuple('OverviewReceipt', 'filename full_text')
 Receipt = namedtuple('Receipt', 'filename full_text')
