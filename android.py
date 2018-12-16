@@ -177,9 +177,9 @@ def perform_logout():
 
 
 
-STATE_OF_PANIC = False
 
 def loop():
+    STATE_OF_PANIC = False
     try:
         while True:
             image = screenshot()
@@ -239,4 +239,5 @@ def test():
     exit(0)
 
 #test()
+
 loop()

@@ -4,6 +4,7 @@ file_structure:
 	mkdir -p ./images/success
 	mkdir -p ./images/test
 	mkdir -p ./images/unseen
+	mkdir -p ./images/tmp
 
 build: file_structure
 	docker build -t ocr .

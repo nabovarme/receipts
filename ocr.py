@@ -9,31 +9,32 @@ import logging
 import shutil
 from sanic import Sanic
 from sanic.response import json
-from mysql.connector import pooling
 
+import pymysql.cursors
+import pymysql
 
 OverviewReceipt = namedtuple('OverviewReceipt', 'filename full_text')
 Receipt = namedtuple('Receipt', 'filename full_text')
 
 
 dbconfig = {
-  "database": os.environ['DB_HOST'],
+  "host": os.environ['DB_HOST'],
+  "db": os.environ['DB_DATABASE'],
   "user":     os.environ['DB_USER'],
   "password": os.environ['DB_PASSWORD']
 }
-CONNECTION_POOL = pooling.MySQLConnectionPool(
-    pool_name='666',
-    pool_size=2,
-    pool_reset_session=True,
-    **dbconfig
-)
+    # Connect to the database
+CONNECTION = pymysql.connect(
+                                db='db',
+                                charset='utf8mb4',
+                                cursorclass=pymysql.cursors.DictCursor, **dbconfig)
 
 def overview_image_to_rows(filename):
     img_rgb = cv2.imread(filename)
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
 
     width = img_gray.shape[1]
-    template = cv2.imread('/images/template_row.png',0)
+    template = cv2.imread('/images/template.png',0)
 
     w, h = template.shape[::-1]
     cv2.imwrite("/images/tmp_img_gray.jpg", img_gray)
@@ -92,11 +93,18 @@ def insert_into_db(overview_receipt, detail_receipt):
     screenshot_detail = image_to_blob(detail_receipt.filename)
 
     args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail)
- 
-    with CONNECTION_POOL.get_connection() as conn:
-        with conn.cursor() as cursor:
+
+    try:
+        with connection.cursor() as cursor:
+            # Create a new record
             cursor.execute(query, args)
 
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        connection.commit()
+
+    finally:
+        connection.close()
 
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
@@ -140,7 +148,7 @@ async def test(request):
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
 
     receipt_detail_filename = '/images/receipt.png'
-    receipt = receipt_from_filename(filename)
+    receipt = receipt_from_filename(receipt_detail_filename)
     print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
 
     insert_into_db(overview_receipt, receipt)
