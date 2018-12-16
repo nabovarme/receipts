@@ -25,7 +25,7 @@ CONNECTION_POOL = pooling.MySQLConnectionPool(
     pool_name='666',
     pool_size=2,
     pool_reset_session=True,
-    **self.dbconfig
+    **dbconfig
 )
 
 def overview_image_to_rows(filename):
