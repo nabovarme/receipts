@@ -78,24 +78,34 @@ def image_to_blob(filename):
     return photo
 
 
-def insert_into_db(info, row_receipt_filename, receipt_detail_filename):
-    
+def insert_into_db(overview_receipt, detail_receipt):
+
+
     query = """
         INSERT INTO accounts_auto
-        VALUES(info, screnshow_row, screenshot_detail)
+        VALUES(info_row, info_detail, screnshow_row, screenshot_detail)
         (%s, %s, %s)
     """
 
-    screenshot_row = image_to_blob(row_receipt_filename)
-    screenshot_detail = image_to_blob(receipt_detail_filename)
+    screenshot_row = image_to_blob(overview_receipt.filename)
+    screenshot_detail = image_to_blob(detail_receipt.filename)
 
-    args = (info, screenshot_row, screenshot_detail)
+    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail)
  
     with CONNECTION_POOL.get_connection() as conn:
         with conn.cursor() as cursor:
             cursor.execute(query, args)
 
-        
+
+def should_checkout_row_receipt(row_receipt_info):
+    # select * from stuff where info_row == this
+    return True
+
+
+def has_seen_first_receipt():
+    return False
+
+
 app = Sanic()
 
 
@@ -109,8 +119,7 @@ async def test(request):
             logging.error("ignoring image with y value lower than 300")
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
-
-        if overview_receipt not in seen:
+        if should_checkout_row_receipt(overview_receipt.full_text):
             receipts_to_open.append((punkt, overview_receipt._asdict()))
     receipts = [
         {
@@ -123,6 +132,7 @@ async def test(request):
         'receipts': receipts
     })
 
+
 @app.route("/see_receipt")
 async def test(request):
     receipt = request.json
@@ -131,9 +141,16 @@ async def test(request):
     receipt_detail_filename = '/images/receipt.png'
     receipt = receipt_from_filename(filename)
     print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
-    info = '\n'.join([overview_receipt.full_text, receipt.full_text])
-    insert_into_db(info, overview_receipt.filename, receipt.filename)
+
+    insert_into_db(overview_receipt, receipt)
+
     return json({'seen':True})
+
+
+@app.route("/has_seen_first_receipt")
+async def test(request):
+    seen = has_seen_first_receipt()
+    return json({'seen':seen})
 
 
 if __name__ == "__main__":

@@ -135,6 +135,12 @@ def should_swipe_further_overview_list():
     receipts = data['receipts']
     return receipts
 
+def check_if_has_seen_first_receipt():  
+    r = requests.get('http://ocr:8000/has_seen_first_receipt')
+    data = r.json()
+    seen = data['seen']
+    return seen
+
 def see_receipt(receipt):
     cmd("shell input tap {} {}".format(receipt['x'], receipt['y']))
     screenshot('receipt.png')
@@ -202,7 +208,7 @@ def loop():
                     state = get_state(image)
                     if state != OVERVIEW_LIST:
                         break
-                if receipts:
+                if receipts or not check_if_has_seen_first_receipt():
                     swipe_down_overview_list()
                 else:
                     reset_overview()
