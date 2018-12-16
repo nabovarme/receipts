@@ -85,7 +85,7 @@ def insert_into_db(overview_receipt, detail_receipt):
     query = """
         INSERT INTO accounts_auto
         VALUES(info_row, info_detail, screnshow_row, screenshot_detail)
-        (%s, %s, %s)
+        (%s, %s, %s, %s)
     """
 
     screenshot_row = image_to_blob(overview_receipt.filename)
