@@ -101,6 +101,8 @@ def insert_into_db(overview_receipt, detail_receipt):
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         CONNECTION.commit()
+    except:
+        logging.exception("MYSQL ERROR")
 
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
