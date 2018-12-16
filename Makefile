@@ -3,6 +3,7 @@ file_structure:
 	mkdir -p ./images/errors
 	mkdir -p ./images/success
 	mkdir -p ./images/test
+	mkdir -p ./images/unseen
 
 build: file_structure
 	docker build -t ocr .

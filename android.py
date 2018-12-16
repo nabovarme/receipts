@@ -6,9 +6,6 @@ import logging
 import requests
 from collections import namedtuple
 
-OverviewReceipt = namedtuple('OverviewReceipt', 'name amount date')
-Receipt = namedtuple('Receipt', 'amount tlf')
-
 ADB_IP = '10.8.0.86'
 
 def cmd(cmd_line):
@@ -101,6 +98,8 @@ def get_state(image, log_coordinates=False):
     if log_coordinates or not possible_states:
         for coord in coords:
             print(coord, flush=True)
+    if not possible_states:
+        image.save('/images/unseen/{}.png'.format(int(time.time())))
     state = possible_states[-1]
     return state
 
