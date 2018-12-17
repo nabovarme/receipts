@@ -144,12 +144,16 @@ def check_if_has_seen_first_receipt():
     seen = data['seen']
     return seen
 
-def see_receipt(receipt):
+def open_receipt(receipt):
     cmd("shell input tap {} {}".format(receipt['x'], receipt['y']))
-    screenshot('receipt.png')
+    image = screenshot('receipt.png')
+    return image
+
+def mark_receipt_as_seen(receipt):
     r = requests.get('http://ocr:8000/see_receipt', json=receipt)
     data = r.json()
-    print(data, flush=True)
+
+def close_receipt():
     cmd('shell input keyevent KEYCODE_BACK')
 
 def reset_overview():
@@ -213,7 +217,13 @@ def loop():
             if state == OVERVIEW_LIST:
                 receipts, last_receipt = should_swipe_further_overview_list()
                 for receipt in receipts:
-                    see_receipt(receipt)
+                    image = open_receipt()
+                    state = get_state(image)
+                    if state != RECEIPT:
+                        STATE_OF_PANIC = True
+                        break
+                    mark_receipt_as_seen()
+                    close_receipt()
                     image = screenshot()
                     state = get_state(image)
                     if state != OVERVIEW_LIST:
