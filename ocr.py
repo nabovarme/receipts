@@ -110,13 +110,15 @@ def should_checkout_row_receipt(row_receipt_info):
         SELECT count(*) from accounts_auto WHERE info_row = %s
     """
     args = (row_receipt_info,)
-
+    seen = False
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
             cursor.execute(query, args)
-            results = cursor.fetchone()
-            print(results)
+            result = cursor.fetchone()
+            count = result['count(*)']
+            if count:
+                seen = True
             
 
         # connection is not autocommit by default. So you must commit to save
@@ -125,10 +127,33 @@ def should_checkout_row_receipt(row_receipt_info):
         logging.warning("succesfully inserted row")
     except:
         logging.exception("MYSQL ERROR")
-    return True
+    return seen
 
 def has_seen_first_receipt():
-    return False
+    # select * from stuff where info_row == this
+    query = """
+        SELECT count(*) from accounts_auto WHERE info_row = %s
+    """
+    args = ('Martin Leidesdorff\nYou received money 40,00\n16.02.2017',)
+    seen = False
+    try:
+        with CONNECTION.cursor() as cursor:
+            # Create a new record
+            cursor.execute(query, args)
+            result = cursor.fetchone()
+            count = result['count(*)']
+            print("seen first row,", count, flush=True)
+            if count:
+                seen = True
+            
+
+        # connection is not autocommit by default. So you must commit to save
+        # your changes.
+        CONNECTION.commit()
+        logging.warning("succesfully inserted row")
+    except:
+        logging.exception("MYSQL ERROR")
+    return seen
 
 app = Sanic()
 
