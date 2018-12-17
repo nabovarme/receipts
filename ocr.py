@@ -36,15 +36,27 @@ def blur_and_threshold_image(filename):
                             param1=50,param2=30,minRadius=40,maxRadius=50)
     output = gray.copy()
 
+    y_index = 0
+
     if circles is not None:
         circles = np.round(circles[0, :]).astype("int")
         for (x, y, r) in circles:
+            y_index = y + 90
+
             cv2.circle(output, (x, y), r+4, (255,255,255), -1)
-        
+   
     blured_img = cv2.medianBlur(output,1)
     _, img = cv2.threshold(blured_img,175,255,cv2.THRESH_BINARY)
-    img = img[100:, :]
-    cv2.imwrite(filename, img)
+    
+    if y_index:
+        upper = img[:y_index, :]
+        downer = img[y_index:, :]
+        h, w = downer.shape[:2]
+        mask = np.zeros((h+2, w+2), np.uint8)
+        cv2.floodFill(downer, mask, (0,0), 0)
+        downer = cv2.bitwise_not(downer)
+        img = np.concatenate((upper, downer), axis=0)
+    cv2.imwrite(filename, img[50:, :])
 
 
 def overview_image_to_rows(filename):
