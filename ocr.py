@@ -116,6 +116,7 @@ def should_checkout_row_receipt(row_receipt_info):
             # Create a new record
             cursor.execute(query, args)
             results = cursor.fetchone()
+            print(results)
             
 
         # connection is not autocommit by default. So you must commit to save
