@@ -216,7 +216,9 @@ def loop():
                     state = get_state(image)
                     if state != OVERVIEW_LIST:
                         break
-                if receipts or not check_if_has_seen_first_receipt():
+                seen_first_receipt = check_if_has_seen_first_receipt()
+                print("got", len(receipts), "and seen first receipt:", seen_first_receipt)
+                if receipts or not seen_first_receipt:
                     swipe_down_overview_list()
                 else:
                     reset_overview()
