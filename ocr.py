@@ -110,7 +110,7 @@ def should_checkout_row_receipt(row_receipt_info):
         SELECT count(*) from accounts_auto WHERE info_row = %s
     """
     args = (row_receipt_info,)
-    seen = False
+    seen = True
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
@@ -118,7 +118,7 @@ def should_checkout_row_receipt(row_receipt_info):
             result = cursor.fetchone()
             count = result['count(*)']
             if count:
-                seen = True
+                seen = False
             
 
         # connection is not autocommit by default. So you must commit to save
