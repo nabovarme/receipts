@@ -201,7 +201,7 @@ def loop():
             if state == RECEIPT:
                 reset_overview()
             
-            if state == SEND_REQUEST_AND_PAY:
+            if state == SEND_REQUEST_AND_PAY or STATE_OF_PANIC:
                 open_activities_from_send_payment()
             
             if state == EMPTY or STATE_OF_PANIC:
