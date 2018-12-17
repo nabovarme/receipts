@@ -222,7 +222,7 @@ def loop():
                     if state != RECEIPT:
                         STATE_OF_PANIC = True
                         break
-                    mark_receipt_as_seen()
+                    mark_receipt_as_seen(receipt)
                     close_receipt()
                     image = screenshot()
                     state = get_state(image)
