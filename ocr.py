@@ -142,11 +142,9 @@ def has_seen_first_receipt():
             cursor.execute(query, args)
             result = cursor.fetchone()
             count = result['count(*)']
-            print("seen first row,", count, flush=True)
             if count:
                 seen = True
             
-
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         CONNECTION.commit()
