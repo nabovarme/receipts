@@ -42,3 +42,6 @@ compose_daemon: compose_build
 
 down: 
 	docker-compose down
+
+logs:
+	docker-compose logs
