@@ -36,8 +36,8 @@ def blur_and_threshold_image(filename):
                             param1=50,param2=30,minRadius=40,maxRadius=50)
     output = gray.copy()
 
-    circles = np.round(circles[0, :]).astype("int")
-    if circles:
+    if circles is not None:
+        circles = np.round(circles[0, :]).astype("int")
         for (x, y, r) in circles:
             cv2.circle(output, (x, y), r+4, (255,255,255), -1)
         
