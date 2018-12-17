@@ -151,7 +151,6 @@ def open_receipt(receipt):
 
 def mark_receipt_as_seen(receipt):
     r = requests.get('http://ocr:8000/see_receipt', json=receipt)
-    data = r.json()
 
 def close_receipt():
     cmd('shell input keyevent KEYCODE_BACK')
