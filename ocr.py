@@ -28,6 +28,27 @@ CONNECTION = pymysql.connect(
                                 charset='utf8mb4',
                                 cursorclass=pymysql.cursors.DictCursor, **dbconfig)
 
+
+def blur_and_threshold_image(filename):
+    img = cv2.imread(filename)
+    img = cv2.imread(filename)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1,20,
+                            param1=50,param2=30,minRadius=40,maxRadius=50)
+    output = gray.copy()
+
+    circles = np.round(circles[0, :]).astype("int")
+
+    for (x, y, r) in circles:
+        cv2.circle(output, (x, y), r+4, (255,255,255), -1)
+    
+    blured_img = cv2.medianBlur(output,1)
+    _, img = cv2.threshold(blured_img,175,255,cv2.THRESH_BINARY)
+
+    cv2.imwrite(filename, img)
+
+blur_and_threshold_image('unreadable.png')
+
 def overview_image_to_rows(filename):
     img_rgb = cv2.imread(filename)
     img_gray = cv2.cvtColor(img_rgb, cv2.COLOR_BGR2GRAY)
@@ -188,6 +209,7 @@ async def test(request):
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
     if should_checkout_row_receipt(overview_receipt.full_text):
         receipt_detail_filename = '/images/receipt.png'
+        blur_and_threshold_image(receipt_detail_filename)
         receipt = receipt_from_filename(receipt_detail_filename)
         print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
 
