@@ -44,7 +44,7 @@ def blur_and_threshold_image(filename):
     
     blured_img = cv2.medianBlur(output,1)
     _, img = cv2.threshold(blured_img,175,255,cv2.THRESH_BINARY)
-
+    img = img[50:, :]
     cv2.imwrite(filename, img)
 
 blur_and_threshold_image('unreadable.png')
