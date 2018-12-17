@@ -106,9 +106,6 @@ def get_state(image, log_coordinates=False):
     state = possible_states[-1]
     return state
 
-
-
-
 def screenshot(filename='screencap.png'):
     cmd('shell screencap -p /sdcard/screencap.png')
     cmd('pull /sdcard/screencap.png /images/' + filename)
@@ -171,19 +168,13 @@ def perform_logout():
     #press logout button
     cmd('shell input tap 356 745')
 
-
-
-#cmd('disconnect')
-
-#cmd('connect 10.0.1.71:5555')
-
-
-
-
+def go_back():
+    cmd('shell input keyevent KEYCODE_BACK')
 
 def loop():
     STATE_OF_PANIC = False
     LOWEST_ROW = None
+    LAST_STATE = None
     try:
         while True:
             image = screenshot()
@@ -194,7 +185,10 @@ def loop():
                 open_app()
                 STATE_OF_PANIC = False
                 LOWEST_ROW = None
-                        
+            
+            if state == LOGIN and LAST_STATE = LOGIN:
+                go_back()
+
             if state == LOGIN:
                 input_pin()
 
@@ -240,7 +234,7 @@ def loop():
             
             if state == MENU:
                 open_activities()
-            
+            LAST_STATE = state
     except:
         logging.exception("ERROR")
 
