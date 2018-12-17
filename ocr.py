@@ -39,6 +39,7 @@ def blur_and_threshold_image(filename):
     circles = np.round(circles[0, :]).astype("int")
 
     for (x, y, r) in circles:
+        print(x,y,r)
         cv2.circle(output, (x, y), r+4, (255,255,255), -1)
     
     blured_img = cv2.medianBlur(output,1)
