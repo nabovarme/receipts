@@ -136,7 +136,7 @@ def should_swipe_further_overview_list():
     data = r.json()
     print(data, flush=True)
     receipts = data['receipts']
-    return receipts
+    return receipts, data['last_receipt']
 
 def check_if_has_seen_first_receipt():  
     r = requests.get('http://ocr:8000/has_seen_first_receipt')
@@ -180,6 +180,7 @@ def perform_logout():
 
 def loop():
     STATE_OF_PANIC = False
+    LOWEST_ROW = None
     try:
         while True:
             image = screenshot()
@@ -189,6 +190,7 @@ def loop():
             if state == HOME:
                 open_app()
                 STATE_OF_PANIC = False
+                LOWEST_ROW = None
                         
             if state == LOGIN:
                 input_pin()
@@ -209,7 +211,7 @@ def loop():
                 perform_logout()
 
             if state == OVERVIEW_LIST:
-                receipts = should_swipe_further_overview_list()
+                receipts, last_receipt = should_swipe_further_overview_list()
                 for receipt in receipts:
                     see_receipt(receipt)
                     image = screenshot()
@@ -219,7 +221,11 @@ def loop():
                 seen_first_receipt = check_if_has_seen_first_receipt()
                 print("got", len(receipts), "and seen first receipt:", seen_first_receipt)
                 if receipts or not seen_first_receipt:
+
                     swipe_down_overview_list()
+                    if LOWEST_ROW is not None and LOWEST_ROW == last_receipt:
+                        STATE_OF_PANIC = True
+                    LOWEST_ROW = last_receipt
                 else:
                     reset_overview()
             

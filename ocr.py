@@ -160,11 +160,13 @@ async def test(request):
     filename = '/images/screencap.png'
     receipts_to_open = []
     images_and_x_y = overview_image_to_rows(filename)
+    last_receipt = None
     for index, (punkt, tmp_filename) in enumerate(images_and_x_y):
         if punkt[1] < 300:
             logging.error("ignoring image with y value lower than 300")
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
+        last_receipt = overview_receipt
         if should_checkout_row_receipt(overview_receipt.full_text):
             receipts_to_open.append((punkt, overview_receipt._asdict()))
     receipts = [
@@ -175,7 +177,8 @@ async def test(request):
         } for punkt, overview_receipt in receipts_to_open
     ]
     return json({
-        'receipts': receipts
+        'receipts': receipts,
+        'last_receipt': last_receipt._asdict()
     })
 
 
