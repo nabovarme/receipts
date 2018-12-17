@@ -186,12 +186,14 @@ async def test(request):
 async def test(request):
     receipt = request.json
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
+    if should_checkout_row_receipt(overview_receipt.full_text):
+        receipt_detail_filename = '/images/receipt.png'
+        receipt = receipt_from_filename(receipt_detail_filename)
+        print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
 
-    receipt_detail_filename = '/images/receipt.png'
-    receipt = receipt_from_filename(receipt_detail_filename)
-    print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
-
-    insert_into_db(overview_receipt, receipt)
+        insert_into_db(overview_receipt, receipt)
+    else:
+        logging.warning("ignoring already seen receipt: {}".format(overview_receipt.full_text))
 
     return json({'seen':True})
 
