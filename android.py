@@ -217,7 +217,7 @@ def loop():
             if state == OVERVIEW_LIST:
                 receipts, last_receipt = should_swipe_further_overview_list()
                 for receipt in receipts:
-                    image = open_receipt()
+                    image = open_receipt(receipt)
                     state = get_state(image)
                     if state != RECEIPT:
                         STATE_OF_PANIC = True
