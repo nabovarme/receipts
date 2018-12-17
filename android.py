@@ -186,7 +186,7 @@ def loop():
                 STATE_OF_PANIC = False
                 LOWEST_ROW = None
             
-            if state == LOGIN and LAST_STATE = LOGIN:
+            if state == LOGIN and LAST_STATE == LOGIN:
                 go_back()
 
             if state == LOGIN:
