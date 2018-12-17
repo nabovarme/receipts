@@ -30,7 +30,7 @@ CONNECTION = pymysql.connect(
 
 
 def blur_and_threshold_image(filename):
-    gray = cv2.imread(filename)
+    img = cv2.imread(filename)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     circles = cv2.HoughCircles(gray, cv2.HOUGH_GRADIENT, 1,20,
                             param1=50,param2=30,minRadius=40,maxRadius=50)
