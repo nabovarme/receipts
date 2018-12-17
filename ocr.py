@@ -124,7 +124,7 @@ def should_checkout_row_receipt(row_receipt_info):
         logging.warning("succesfully inserted row")
     except:
         logging.exception("MYSQL ERROR")
-
+    return True
 
 def has_seen_first_receipt():
     return False
