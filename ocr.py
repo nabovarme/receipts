@@ -134,7 +134,7 @@ def has_seen_first_receipt():
     query = """
         SELECT count(*) from accounts_auto WHERE info_row = %s
     """
-    args = ('Martin Leidesdorff \nYou received money 40,00\n16.02.2017.',)
+    args = ('Martin Leidesdorff\nYou received money 40,00\n16.02.2017\n\x0c',)
     seen = False
     try:
         with CONNECTION.cursor() as cursor:
