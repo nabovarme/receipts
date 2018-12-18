@@ -47,7 +47,7 @@ def blur_and_threshold_image(filename):
    
     blured_img = cv2.medianBlur(output,1)
     _, img = cv2.threshold(blured_img,175,255,cv2.THRESH_BINARY)
-    
+
     if y_index:
         upper = img[:y_index, :]
         downer = img[y_index:, :]
@@ -138,7 +138,7 @@ def insert_into_db(overview_receipt, detail_receipt):
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
     query = """
-        SELECT count(*) from accounts_auto WHERE info_row = %s
+        SELECT count(*) from accounts_auto WHERE info_row like %s
     """
     args = (row_receipt_info,)
     seen = True
