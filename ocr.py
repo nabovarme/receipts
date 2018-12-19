@@ -148,7 +148,7 @@ def should_checkout_row_receipt(row_receipt):
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 16), 16, 10) AS UNSIGNED)) +
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) < 1;
     """.format(row_receipt.phash)
-    shoult_investigate = False
+    shoult_investigate = True
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
@@ -156,7 +156,7 @@ def should_checkout_row_receipt(row_receipt):
             count = cursor.rowcount
             print("have i seen {} before?, {}".format(row_receipt.phash, count))
             if count:
-                shoult_investigate = True
+                shoult_investigate = False
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
