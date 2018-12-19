@@ -32,9 +32,7 @@ CONNECTION = pymysql.connect(
 def image_to_hash(filename):
     image = Image.open(filename)
     row, col = dhash.dhash_row_col(image)
-    hash = dhash.format_hex(row, col)
-    print(type(hash))
-    return hash
+    return dhash.format_hex(row, col)
   
 def blur_and_threshold_image(filename):
     img = cv2.imread(filename)
@@ -123,7 +121,7 @@ def insert_into_db(overview_receipt, detail_receipt):
     query = """
         INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail, info_row_phash)
         VALUES (%s, %s, %s, %s, '{}')
-    """.format( pymysql.escape_string(overview_receipt.phash))
+    """.format( overview_receipt.phash )
 
     screenshot_row = image_to_blob(overview_receipt.filename)
     screenshot_detail = image_to_blob(detail_receipt.filename)
@@ -145,15 +143,18 @@ def insert_into_db(overview_receipt, detail_receipt):
 def should_checkout_row_receipt(row_receipt):
     # select * from stuff where info_row == this
     query = """
-        SELECT * FROM accounts_auto WHERE BIT_COUNT(info_row_phash ^ %s) < 1;
-    """
-    args = (row_receipt.phash,)
-    shoult_investigate = True
+        SELECT * FROM accounts_auto WHERE
+
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) < 1;
+    """.format(row_receipt.phash)
+    shoult_investigate = False
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
-            cursor.execute(query, args)
+            cursor.execute(query)
             count = cursor.rowcount
+            print("have i seen {} before?, {}".format(row_receipt.phash, count))
             if count:
                 shoult_investigate = True
 
