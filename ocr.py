@@ -145,8 +145,14 @@ def should_checkout_row_receipt(row_receipt):
     query = """
         SELECT * FROM accounts_auto WHERE
 
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 64)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 64), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 65, 128)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 65, 128), 16, 10) AS UNSIGNED)) < 2;
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 33, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 33, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 49, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 49, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 65, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 65, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 81, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 81, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 97, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 97, 16), 16, 10) AS UNSIGNED)) +
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 113, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 113, 16), 16, 10) AS UNSIGNED)) < 1;
     """.format(row_receipt.phash)
     shoult_investigate = True
     try:
