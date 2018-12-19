@@ -126,7 +126,7 @@ def open_activities():
     cmd('shell input tap 116 346')
 
 def swipe_down_overview_list():
-    cmd('shell input swipe 242 736 242 600')
+    cmd('shell input swipe 242 736 242 500')
 
 def should_swipe_further_overview_list():  
     r = requests.get('http://ocr:8000/should_i_swipe_further')
@@ -172,7 +172,7 @@ def go_back():
     cmd('shell input keyevent KEYCODE_BACK')
 
 def loop():
-    STATE_OF_PANIC = True
+    STATE_OF_PANIC = False
     LOWEST_ROW = None
     LAST_STATE = None
     try:
