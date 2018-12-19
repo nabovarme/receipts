@@ -31,7 +31,7 @@ CONNECTION = pymysql.connect(
 
 def image_to_hash(filename):
     image = Image.open(filename)
-    row, col = dhash.dhash_row_col(image)
+    row, col = dhash.dhash_row_col(image, size=16)
     return dhash.format_hex(row, col)
   
 def blur_and_threshold_image(filename):
