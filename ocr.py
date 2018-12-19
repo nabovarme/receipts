@@ -217,7 +217,7 @@ async def test(request):
 async def test_see(request):
     receipt = request.json
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
-    if should_checkout_row_receipt(overview_receipt.full_text):
+    if should_checkout_row_receipt(overview_receipt):
         receipt_detail_filename = '/images/receipt.png'
         blur_and_threshold_image(receipt_detail_filename)
         receipt = receipt_from_filename(receipt_detail_filename)
