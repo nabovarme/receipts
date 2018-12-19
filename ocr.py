@@ -138,7 +138,7 @@ def insert_into_db(overview_receipt, detail_receipt):
         CONNECTION.commit()
         logging.warning("succesfully inserted row")
     except:
-        logging.exception("MYSQL ERROR")
+        logging.error("DB REPORTED DUPLICATE")
 
 def should_checkout_row_receipt(row_receipt):
     # select * from stuff where info_row == this
