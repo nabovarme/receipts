@@ -146,7 +146,7 @@ def should_checkout_row_receipt(row_receipt):
         SELECT * FROM accounts_auto WHERE
 
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) < 1;
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) < 2;
     """.format(row_receipt.phash)
     shoult_investigate = True
     try:
