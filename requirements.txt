@@ -5,3 +5,4 @@ numpy
 dateutils
 sanic
 PyMySQL
+dhash
