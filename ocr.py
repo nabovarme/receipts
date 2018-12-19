@@ -120,13 +120,13 @@ def insert_into_db(overview_receipt, detail_receipt):
 
     query = """
         INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail, info_row_phash)
-        VALUES (%s, %s, %s, %s, %s)
-    """
+        VALUES (%s, %s, %s, %s, '{}')
+    """.format( overview_receipt.phash)
 
     screenshot_row = image_to_blob(overview_receipt.filename)
     screenshot_detail = image_to_blob(detail_receipt.filename)
 
-    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail, overview_receipt.phash)
+    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail)
 
     try:
         with CONNECTION.cursor() as cursor:
