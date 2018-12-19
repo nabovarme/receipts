@@ -138,14 +138,15 @@ def insert_into_db(overview_receipt, detail_receipt):
 def should_checkout_row_receipt(row_receipt_info):
     # select * from stuff where info_row == this
     query = """
-        SELECT count(*) from accounts_auto WHERE info_row like %s
+        SELECT * from accounts_auto WHERE info_row like %s
     """
     args = (row_receipt_info,)
     seen = True
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
-            count = cursor.execute(query, args)
+            cursor.execute(query, args)
+            count = cursor.rowcount
             if count:
                 seen = False
             
@@ -161,14 +162,15 @@ def should_checkout_row_receipt(row_receipt_info):
 def has_seen_first_receipt():
     # select * from stuff where info_row == this
     query = """
-        SELECT count(*) from accounts_auto WHERE info_row = %s
+        SELECT * from accounts_auto WHERE info_row = %s
     """
     args = ('Martin Leidesdorff\nYou received money 40,00\n16.02.2017\n\x0c',)
     seen = False
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
-            count = cursor.execute(query, args)
+            cursor.execute(query, args)
+            count = cursor.rowcount
             if count:
                 seen = True
             
