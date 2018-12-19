@@ -31,9 +31,9 @@ CONNECTION = pymysql.connect(
 
 def image_to_hash(filename):
     image = Image.open(filename)
-    hash_int = dhash.dhash_int(image)
-    return '{}'.format(hash_int)
-
+    row, col = dhash.dhash_row_col(image)
+    return dhash.format_hex(row, col))
+  
 def blur_and_threshold_image(filename):
     img = cv2.imread(filename)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
