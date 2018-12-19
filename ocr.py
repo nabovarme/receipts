@@ -32,7 +32,7 @@ CONNECTION = pymysql.connect(
 def image_to_hash(filename):
     image = Image.open(filename)
     hash_int = dhash.dhash_int(image)
-    return hash_int
+    return '{}'.format(hash_int)
 
 def blur_and_threshold_image(filename):
     img = cv2.imread(filename)
@@ -126,7 +126,7 @@ def insert_into_db(overview_receipt, detail_receipt):
     screenshot_row = image_to_blob(overview_receipt.filename)
     screenshot_detail = image_to_blob(detail_receipt.filename)
 
-    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail, overview_receipt.phash)
+    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail, int(overview_receipt.phash))
 
     try:
         with CONNECTION.cursor() as cursor:
