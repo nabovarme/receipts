@@ -152,7 +152,7 @@ def should_checkout_row_receipt(row_receipt):
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 65, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 65, 16), 16, 10) AS UNSIGNED)) +
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 81, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 81, 16), 16, 10) AS UNSIGNED)) +
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 97, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 97, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 113, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 113, 16), 16, 10) AS UNSIGNED)) < 1;
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 113, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 113, 16), 16, 10) AS UNSIGNED)) < 2;
     """.format(row_receipt.phash)
     shoult_investigate = True
     try:
