@@ -145,9 +145,7 @@ def should_checkout_row_receipt(row_receipt_info):
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
-            cursor.execute(query, args)
-            result = cursor.fetchone()
-            count = result['count(*)']
+            count = cursor.execute(query, args)
             if count:
                 seen = False
             
@@ -170,9 +168,7 @@ def has_seen_first_receipt():
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
-            cursor.execute(query, args)
-            result = cursor.fetchone()
-            count = result['count(*)']
+            count = cursor.execute(query, args)
             if count:
                 seen = True
             
