@@ -29,8 +29,8 @@ CONNECTION = pymysql.connect(
                                 charset='utf8mb4',
                                 cursorclass=pymysql.cursors.DictCursor, **dbconfig)
 
-def image_to_hash(overview_receipt):
-    image = Image.open(overview_receipt.filename)
+def image_to_hash(filename):
+    image = Image.open(filename)
     hash_int = dhash.dhash_int(image)
     return hash_int
 
@@ -107,7 +107,7 @@ def receipt_from_filename(filename):
     
 def row_receipt_from_filename(filename):
     text = tesseract_on_filename(filename)
-    return OverviewReceipt(filename, text)
+    return OverviewReceipt(image_to_hash(filename), filename, text)
 
 def image_to_blob(filename):
     with open(filename, 'rb') as f:
@@ -223,7 +223,6 @@ async def test_see(request):
         blur_and_threshold_image(receipt_detail_filename)
         receipt = receipt_from_filename(receipt_detail_filename)
         print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
-        overview_receipt.phash = image_to_hash(overview_receipt)
         insert_into_db(overview_receipt, receipt)
     else:
         logging.warning("ignoring already seen receipt: {}".format(overview_receipt.full_text))
