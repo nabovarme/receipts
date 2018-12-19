@@ -146,7 +146,7 @@ def should_checkout_row_receipt(row_receipt):
         SELECT * FROM accounts_auto WHERE BIT_COUNT(info_row_phash ^ %s) < 1;
     """
     args = (row_receipt.phash,)
-    shoult_investigate = False
+    shoult_investigate = True
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
