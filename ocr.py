@@ -120,8 +120,8 @@ def insert_into_db(overview_receipt, detail_receipt):
 
     query = """
         INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail, info_row_phash)
-        VALUES (%s, %s, %s, %s, 'foobar')
-    """
+        VALUES (%s, %s, %s, %s, '{}')
+    """.format( overview_receipt.phash)
 
     screenshot_row = image_to_blob(overview_receipt.filename)
     screenshot_detail = image_to_blob(detail_receipt.filename)
@@ -153,7 +153,7 @@ def should_checkout_row_receipt(row_receipt):
             cursor.execute(query, args)
             count = cursor.rowcount
             if count:
-                shoult_investigate = False
+                shoult_investigate = True
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
@@ -180,7 +180,6 @@ def has_seen_first_receipt():
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         CONNECTION.commit()
-        logging.warning("succesfully inserted row")
     except:
         logging.exception("MYSQL ERROR")
     return seen
