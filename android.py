@@ -172,7 +172,7 @@ def go_back():
     cmd('shell input keyevent KEYCODE_BACK')
 
 def loop():
-    STATE_OF_PANIC = False
+    STATE_OF_PANIC = True
     LOWEST_ROW = None
     LAST_STATE = None
     try:
