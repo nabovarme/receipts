@@ -12,8 +12,9 @@ from sanic.response import json
 
 import pymysql.cursors
 import pymysql
+import dhash
 
-OverviewReceipt = namedtuple('OverviewReceipt', 'filename full_text')
+OverviewReceipt = namedtuple('OverviewReceipt', 'phash filename full_text')
 Receipt = namedtuple('Receipt', 'filename full_text')
 
 
@@ -28,6 +29,10 @@ CONNECTION = pymysql.connect(
                                 charset='utf8mb4',
                                 cursorclass=pymysql.cursors.DictCursor, **dbconfig)
 
+def image_to_hash(overview_receipt):
+    image = Image.open(overview_receipt.filename)
+    hash_int = dhash.dhash_int(image)
+    return hash_int
 
 def blur_and_threshold_image(filename):
     img = cv2.imread(filename)
@@ -114,14 +119,14 @@ def insert_into_db(overview_receipt, detail_receipt):
 
 
     query = """
-        INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail)
-        VALUES (%s, %s, %s, %s)
+        INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail, info_row_phash)
+        VALUES (%s, %s, %s, %s, %s)
     """
 
     screenshot_row = image_to_blob(overview_receipt.filename)
     screenshot_detail = image_to_blob(detail_receipt.filename)
 
-    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail)
+    args = (overview_receipt.full_text, detail_receipt.full_text, screenshot_row, screenshot_detail, overview_receipt.phash)
 
     try:
         with CONNECTION.cursor() as cursor:
@@ -135,29 +140,27 @@ def insert_into_db(overview_receipt, detail_receipt):
     except:
         logging.exception("MYSQL ERROR")
 
-def should_checkout_row_receipt(row_receipt_info):
+def should_checkout_row_receipt(row_receipt):
     # select * from stuff where info_row == this
     query = """
-        SELECT * from accounts_auto WHERE info_row like %s
+        SELECT * FROM accounts_auto WHERE BIT_COUNT(info_row_phash ^ %s) < 1;
     """
-    args = (row_receipt_info,)
-    seen = True
+    args = (row_receipt.phash,)
+    shoult_investigate = False
     try:
         with CONNECTION.cursor() as cursor:
             # Create a new record
             cursor.execute(query, args)
             count = cursor.rowcount
             if count:
-                seen = False
-            
+                shoult_investigate = False
 
         # connection is not autocommit by default. So you must commit to save
         # your changes.
         CONNECTION.commit()
-        logging.warning("succesfully inserted row")
     except:
         logging.exception("MYSQL ERROR")
-    return seen
+    return shoult_investigate
 
 def has_seen_first_receipt():
     # select * from stuff where info_row == this
@@ -196,7 +199,7 @@ async def test(request):
             continue
         overview_receipt = row_receipt_from_filename(tmp_filename)
         last_receipt = overview_receipt
-        if should_checkout_row_receipt(overview_receipt.full_text):
+        if should_checkout_row_receipt(overview_receipt):
             receipts_to_open.append((punkt, overview_receipt._asdict()))
     receipts = [
         {
@@ -212,7 +215,7 @@ async def test(request):
 
 
 @app.route("/see_receipt")
-async def test(request):
+async def test_see(request):
     receipt = request.json
     overview_receipt = OverviewReceipt(*(receipt[k] for k in OverviewReceipt._fields))
     if should_checkout_row_receipt(overview_receipt.full_text):
@@ -220,7 +223,7 @@ async def test(request):
         blur_and_threshold_image(receipt_detail_filename)
         receipt = receipt_from_filename(receipt_detail_filename)
         print('\nSEEN RECEIPT\n', overview_receipt,'\n', receipt, '\n', flush=True)
-
+        overview_receipt.phash = image_to_hash(overview_receipt)
         insert_into_db(overview_receipt, receipt)
     else:
         logging.warning("ignoring already seen receipt: {}".format(overview_receipt.full_text))
