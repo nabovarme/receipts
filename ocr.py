@@ -12,7 +12,7 @@ from sanic.response import json
 
 import pymysql.cursors
 import pymysql
-import dhash
+import imagehash
 
 OverviewReceipt = namedtuple('OverviewReceipt', 'phash filename full_text')
 Receipt = namedtuple('Receipt', 'filename full_text')
@@ -31,8 +31,8 @@ CONNECTION = pymysql.connect(
 
 def image_to_hash(filename):
     image = Image.open(filename)
-    row, col = dhash.dhash_row_col(image, size=16)
-    return dhash.format_hex(row, col)
+    return str(imagehash.phash(image, hash_size=16))
+    
   
 def auto_crop_image(cv_image_gray, filename):
     height, width = cv_image_gray.shape
@@ -142,7 +142,7 @@ def insert_into_db(overview_receipt, detail_receipt):
 
     query = """
         INSERT INTO accounts_auto (info_row, info_detail, screenshot_row, screenshot_detail, info_row_phash)
-        VALUES (%s, %s, %s, %s, '{}')
+        VALUES (%s, %s, %s, %s, '{}');
     """.format( overview_receipt.phash )
 
     screenshot_row = image_to_blob(overview_receipt.filename)
@@ -161,20 +161,27 @@ def insert_into_db(overview_receipt, detail_receipt):
         logging.warning("succesfully inserted row")
     except:
         logging.error("DB REPORTED DUPLICATE")
+        query = """
+            UPDATE accounts_auto SET duplicate_count = duplicate_count + 1 where info_row = '{0}' AND info_detail = '{1}';
+        """.format(overview_receipt.full_text, detail_receipt.full_text)
+        try:
+            with CONNECTION.cursor() as cursor:
+                # Create a new record
+                cursor.execute(query)
+                CONNECTION.commit()
+                logging.warning("UPDATED duplicate_count plus 1")
+        except:
+            logging.exception("UPDATE DUPLICATE_COUNT ERROR")
 
 def should_checkout_row_receipt(row_receipt):
     # select * from stuff where info_row == this
     query = """
-        SELECT * FROM accounts_auto WHERE
-
+        SELECT * FROM accounts_auto WHERE 
+     
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 1, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 1, 16), 16, 10) AS UNSIGNED)) +
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 17, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 17, 16), 16, 10) AS UNSIGNED)) +
         BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 33, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 33, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 49, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 49, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 65, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 65, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 81, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 81, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 97, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 97, 16), 16, 10) AS UNSIGNED)) +
-        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 113, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 113, 16), 16, 10) AS UNSIGNED)) < 1;
+        BIT_COUNT(CAST(CONV((SUBSTRING(info_row_phash, 49, 16)), 16, 10) AS UNSIGNED) ^ CAST(CONV(SUBSTRING('{0}', 49, 16), 16, 10) AS UNSIGNED)) < 1;
     """.format(row_receipt.phash)
     shoult_investigate = True
     try:

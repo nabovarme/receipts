@@ -25,6 +25,7 @@ LOGOUT = 7
 PANIC = 8
 CRASHED = 9
 UNLOCK_PHONE = 10
+BLACK_SCREEN_OF_DEATH = 11
 
 HUMAN_LOOKUP = {
     OVERVIEW_LIST:'OVERVIEW_LIST',
@@ -37,7 +38,8 @@ HUMAN_LOOKUP = {
     LOGOUT:'LOGOUT',
     PANIC:'PANIC',
     CRASHED: 'CRASHED',
-    UNLOCK_PHONE: 'UNLOCK_PHONE'
+    UNLOCK_PHONE: 'UNLOCK_PHONE',
+    BLACK_SCREEN_OF_DEATH: 'BLACK_SCREEN_OF_DEATH'
 }
 
 states = [
@@ -96,10 +98,16 @@ states = [
         CRASHED
     ],
     [
-        (425, 710), 171,
+        (425, 710), 40,
         (430, 742), 255,
-        (416, 762), 171,
+        (416, 762), 41,
         UNLOCK_PHONE 
+    ],
+    [
+        (425, 710), 0,
+        (430, 742), 0,
+        (416, 762), 0,
+        BLACK_SCREEN_OF_DEATH 
     ]
 ]
 
@@ -112,10 +120,10 @@ def get_state(image, log_coordinates=False):
         pt3 = image.getpixel(coord3)
         if pt1[0] == gray1 and pt2[0] == gray2 and pt3[0] == gray3:
             possible_states.append(state)
-        coords.append((pt1, pt2, pt3))
-    if log_coordinates or not possible_states:
+        coords.append((pt1, pt2, pt3, state))
+    if log_coordinates or not possible_states or HOME in possible_states :
         for coord in coords:
-            print(coord, flush=True)
+            print(HUMAN_LOOKUP[coord[3]], coord[:3], flush=True)
     if not possible_states:
         image.save('/images/unseen/{}.png'.format(int(time.time())))
         return PANIC
@@ -142,7 +150,7 @@ def open_activities():
     cmd('shell input tap 116 346')
 
 def swipe_down_overview_list():
-    cmd('shell input swipe 242 736 242 450')
+    cmd('shell input swipe 242 730 242 480')
 
 def should_swipe_further_overview_list():  
     r = requests.get('http://ocr:8000/should_i_swipe_further')
@@ -173,8 +181,8 @@ def reset_overview():
     open_activities()
 
 def open_activities_from_send_payment():
-    cmd('shell input tap 408 109')
-    time.sleep(2)
+    cmd('shell input tap 400 120')
+    print("opening activities")
 
 def empty_go_to_logout():
     cmd('shell input keyevent KEYCODE_BACK')
@@ -192,6 +200,9 @@ def ok_to_crash():
 def unlock_phone():
     cmd('shell input swipe 23 426 444 426')
 
+def enter_home_button():
+    cmd('shell input keyevent KEYCODE_HOME')
+
 def loop():
     STATE_OF_PANIC = False
     LOWEST_ROW = None
@@ -203,38 +214,53 @@ def loop():
             logging.warning("current state: "+HUMAN_LOOKUP[state])
 
             if state == HOME:
+                logging.warning("ACTION: HOME")
                 open_app()
                 STATE_OF_PANIC = False
                 LOWEST_ROW = None
             
             if state == LOGIN and LAST_STATE == LOGIN:
+                logging.warning("ACTION: LOGIN and last state LOGIN")
                 go_back()
 
             if state == LOGIN:
+                logging.warning("ACTION: LOGIN")
                 input_pin()
 
             if state == PANIC:
+                logging.warning("ACTION: PANIC")
                 STATE_OF_PANIC = True
             
             if state == RECEIPT:
+                logging.warning("ACTION: RECEIPT")
                 reset_overview()
             
             if state == UNLOCK_PHONE:
+                logging.warning("ACTION: UNLOCK_PHONE")
                 unlock_phone()
             
             if state == CRASHED:
+                logging.warning("ACTION: CRASHED")
                 ok_to_crash()
             
+            if state == BLACK_SCREEN_OF_DEATH:
+                logging.warning("ACTION: BLACK_SCREEN_OF_DEATH")
+                enter_home_button()
+            
             if state == SEND_REQUEST_AND_PAY or STATE_OF_PANIC:
+                logging.warning("ACTION: SEND_REQUEST_AND_PAY or STATE_OF_PANIC")
                 open_activities_from_send_payment()
             
             if state == EMPTY or STATE_OF_PANIC:
+                logging.warning("ACTION: EMPTY or STATE_OF_PANIC")
                 empty_go_to_logout()
             
             if state == LOGOUT:
+                logging.warning("ACTION: LOGOUT")
                 perform_logout()
 
             if state == OVERVIEW_LIST:
+                logging.warning("ACTION: OVERVIEW_LIST")
                 receipts, last_receipt = should_swipe_further_overview_list()
                 for receipt in receipts:
                     image = open_receipt(receipt)
@@ -260,6 +286,7 @@ def loop():
                     reset_overview()
             
             if state == MENU:
+                logging.warning("ACTION: MENU")
                 open_activities()
             LAST_STATE = state
     except:

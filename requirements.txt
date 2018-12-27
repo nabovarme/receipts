@@ -5,4 +5,4 @@ numpy
 dateutils
 sanic
 PyMySQL
-dhash
+imagehash
