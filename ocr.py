@@ -34,6 +34,26 @@ def image_to_hash(filename):
     row, col = dhash.dhash_row_col(image, size=16)
     return dhash.format_hex(row, col)
   
+def auto_crop_image(cv_image_gray, filename):   
+    ret,thresh = cv2.threshold(cv_image_gray,200,255,0)
+    thresh = 255 - thresh
+
+    im2,contours,_ = cv2.findContours(thresh, cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+    boxes = []
+
+    for c in contours:
+        (x, y, w, h) = cv2.boundingRect(c)
+        boxes.append([x,y, x+w,y+h])
+
+    boxes = np.asarray(boxes)
+    left = np.min(boxes[:,0])-2
+    top = np.min(boxes[:,1])-2
+    right = np.max(boxes[:,2])+2
+    bottom = np.max(boxes[:,3])+2
+
+    cv_image_gray = cv_image_gray[top:bottom, left:right]
+    cv2.imwrite(filename, cv_image_gray)
+
 def blur_and_threshold_image(filename):
     img = cv2.imread(filename)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -85,12 +105,12 @@ def overview_image_to_rows(filename):
         y = pt[1]
         if y < last_y + 30:
             continue
-        if y < 300:
+        if y < 320:
             # ignoring rows until this point, since they are half height
             continue
         tmp_image = img_gray[pt[1]-120:pt[1] - 10 + h, 110:width-30]
         tmp_filename = f'/images/tmp/{index}.png'
-        cv2.imwrite(tmp_filename, tmp_image)
+        auto_crop_image(tmp_image, tmp_filename)
         images_and_x_y.append((pt, tmp_filename))
         last_y = y
         index += 1
