@@ -34,7 +34,8 @@ def image_to_hash(filename):
     row, col = dhash.dhash_row_col(image, size=16)
     return dhash.format_hex(row, col)
   
-def auto_crop_image(cv_image_gray, filename):   
+def auto_crop_image(cv_image_gray, filename):
+    cv2.imwrite('/images/tmp_thrash.png', cv_image_gray)   
     ret,thresh = cv2.threshold(cv_image_gray,200,255,0)
     thresh = 255 - thresh
 
