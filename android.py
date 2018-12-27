@@ -23,6 +23,8 @@ RECEIPT = 5
 EMPTY = 6
 LOGOUT = 7
 PANIC = 8
+CRASHED = 9
+UNLOCK_PHONE = 10
 
 HUMAN_LOOKUP = {
     OVERVIEW_LIST:'OVERVIEW_LIST',
@@ -33,7 +35,9 @@ HUMAN_LOOKUP = {
     RECEIPT:'RECEIPT',
     EMPTY:'EMPTY',
     LOGOUT:'LOGOUT',
-    PANIC:'PANIC'
+    PANIC:'PANIC',
+    CRASHED: 'CRASHED',
+    UNLOCK_PHONE: 'UNLOCK_PHONE'
 }
 
 states = [
@@ -84,6 +88,18 @@ states = [
         (456, 784), 55,
         (22, 768), 55,
         LOGOUT
+    ],
+    [
+        (41, 355), 199,
+        (41, 460), 199,
+        (256, 460), 199,
+        CRASHED
+    ],
+    [
+        (425, 710), 171,
+        (430, 742), 255,
+        (416, 762), 171,
+        UNLOCK_PHONE 
     ]
 ]
 
@@ -165,11 +181,16 @@ def empty_go_to_logout():
     cmd('shell input keyevent KEYCODE_BACK')
 
 def perform_logout():
-    #press logout button
     cmd('shell input tap 356 745')
 
 def go_back():
     cmd('shell input keyevent KEYCODE_BACK')
+
+def ok_to_crash():
+    cmd('shell input tap 252 467')
+
+def unlock_phone():
+    cmd('shell input swipe 23 426 444 426')
 
 def loop():
     STATE_OF_PANIC = False
@@ -197,6 +218,12 @@ def loop():
             
             if state == RECEIPT:
                 reset_overview()
+            
+            if state == UNLOCK_PHONE:
+                unlock_phone()
+            
+            if state == CRASHED:
+                ok_to_crash()
             
             if state == SEND_REQUEST_AND_PAY or STATE_OF_PANIC:
                 open_activities_from_send_payment()
