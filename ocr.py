@@ -52,7 +52,6 @@ def auto_crop_image(cv_image_gray, filename):
     top = max(np.min(boxes[:,1])-2, 0)
     right = min(np.max(boxes[:,2]) + 2, width)
     bottom = min(np.max(boxes[:,3]) + 2, height)
-    print(top, bottom, left, right, filename)
     cv_image_gray = cv_image_gray[top:bottom, left:right]
     cv2.imwrite(filename, cv_image_gray)
 
